@@ -1,0 +1,50 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'com.github.ben-manes.versions'
+
+// Group Id
+group 'com.github.longkerdandy'
+
+// Version
+version '1.0.0.Beta'
+
+// JDK
+sourceCompatibility = 1.8
+
+// Encoding
+tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+
+// Maven Repository
+repositories {
+    jcenter()
+}
+
+// Dependencies
+dependencies {
+    // junit
+    testCompile 'junit:junit:4.12'
+}
+
+// gradle version plugin
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
+    }
+}
+
+dependencyUpdates.resolutionStrategy = {
+    componentSelection { rules ->
+        rules.all { ComponentSelection selection ->
+            boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm'].any { qualifier ->
+                selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+            }
+            if (rejected) {
+                selection.reject('Release candidate')
+            }
+        }
+    }
+}
